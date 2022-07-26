@@ -1,12 +1,12 @@
 package kube
 
 import (
-	v1 "k8s.io/api/core/v1"
-	rt "k8s.io/apimachinery/pkg/runtime"
+	corev1 "k8s.io/api/core/v1"
 )
 
 type Client interface {
-	CheckResource(resource, namespace string, resourceType rt.Object) bool
-	
-	GetPod(name, namespace string) *v1.Pod
+	Run()
+	Stop()
+
+	GetPod(name, namespace string) *corev1.Pod
 }
