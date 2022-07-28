@@ -6,6 +6,7 @@ import (
 	autoscalingV2 "k8s.io/api/autoscaling/v2beta1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -62,6 +63,7 @@ func (cc *ClusterCache)Run() {
 	stopCh := make(chan struct{})
 
 	go cc.pod.Run(stopCh)
+	go cc.replicaset.Run(stopCh)
 	go cc.service.Run(stopCh)
 
 	cc.stopCh = stopCh
@@ -97,4 +99,52 @@ func (cc *ClusterCache)GetPod(name, namespace string) *corev1.Pod {
 	}
 
 	return nil
+}
+
+func (cc *ClusterCache)GetReplicaSet(name, namespace string) *appsv1.ReplicaSet {
+
+	replicaSet, ns := name, namespace
+
+	if replicaSet == "" {
+		return nil
+	}
+
+	if namespace == "" {
+		ns = corev1.NamespaceDefault
+	}
+
+	objList := cc.replicaset.ListObjs()
+	for _, obj := range objList {
+		if r, ok := obj.(*appsv1.ReplicaSet); ok {
+			if r.Name == replicaSet && r.Namespace == ns {
+				return r
+			}
+		}
+	}
+
+	return nil
+}
+
+func (cc *ClusterCache)GetServices(labels map[string]string, namespace string) []*corev1.Service {
+	ns := namespace
+	if ns == "" {
+		ns = corev1.NamespaceDefault
+	}
+
+	var services []*corev1.Service
+	labelSet := fields.Set(labels)
+
+	objList := cc.service.ListObjs()
+	for _, obj := range objList {
+		if s, ok := obj.(*corev1.Service); ok {
+			if s.Namespace == ns && s.Spec.Selector != nil {
+				selector := fields.SelectorFromSet(s.Spec.Selector)
+				if match := selector.Matches(labelSet); match {
+					services = append(services, s)
+				}
+			}
+		}
+	}
+
+	return services
 }
