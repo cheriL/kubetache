@@ -72,13 +72,13 @@ func (c *Controller) Run(stopCh chan struct{}) {
 
 	// Let the workers stop when we are done
 	defer c.queue.ShutDown()
-	klog.Info("Starting %s controller", c.resource)
+	klog.Info("starting controller: ", c.resource)
 
 	go c.informer.Run(stopCh)
 
 	// Wait for all involved caches to be synced, before processing items from the queue is started
 	if !cache.WaitForCacheSync(stopCh, c.informer.HasSynced) {
-		runtime.HandleError(fmt.Errorf("Timed out waiting for caches to sync"))
+		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 		return
 	}
 
@@ -87,7 +87,7 @@ func (c *Controller) Run(stopCh chan struct{}) {
 	//}
 
 	<-stopCh
-	klog.Info("Stopping %s controller", c.resource)
+	klog.Info("stopping controller: ", c.resource)
 }
 
 func (c *Controller) ListObjs() []interface{} {
