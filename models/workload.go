@@ -4,28 +4,35 @@ package models
 type Workload struct {
 	// Name of the pod.
 	Name           string
-	// Controller of the pod. Like ReplicaSet, statefulSet, daemonSet, etc.
-	Controller     string
+	// Namespace of the pod.
+	Namespace      string
+	// Owners of the pod.
+	Owners         []*Owner
 	// Service of the pod.
-	Service        []string
+	Services       []string
 	// Secrets used by the pod.
 	Secrets        []*Secret
 	// ConfigMaps used by the pod.
 	ConfigMaps     []*ConfigMap
 	// Pvc Bound to the pod.
-	Pvc            []string
+	Pvcs           []string
 	// ServiceAccount used by the pod.
 	ServiceAccount *ServiceAccount
 	//
 	Additions      *Additions
 }
 
+type SourceType string
+
 const (
 	sourceTypeEnvFrom = "envFrom"
 	sourceTypeVolume = "Volume"
 )
 
-type SourceType string
+type Owner struct {
+	Name string
+	Kind string
+}
 
 type Secret struct {
 	Name       string
