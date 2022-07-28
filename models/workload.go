@@ -25,8 +25,11 @@ type Workload struct {
 type SourceType string
 
 const (
-	sourceTypeEnvFrom = "envFrom"
-	sourceTypeVolume = "Volume"
+	SourceTypeImagePullSecret = "imagePullSecret"
+
+	SourceTypeEnvFrom = "envFrom"
+
+	SourceTypeVolume = "volume"
 )
 
 type Owner struct {
